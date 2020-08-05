@@ -1,5 +1,6 @@
 import csv
 
+import click as click
 import requests
 
 
@@ -52,7 +53,7 @@ class CountryToIMDbMapper:
             return response.json()['Country']
         return ''
 
-    def map_countries_to_imdb_ids(self):
+    def map_countries_to_imdb_ids(self, country=None):
         result = list()
         api_limit_exceeded = False
         api_calls = 0
@@ -70,12 +71,21 @@ class CountryToIMDbMapper:
                 if countries:
                     self.__write_new_mapping_to_file(imdb_id, countries)
 
+            if country and (not countries or country not in countries):
+                continue
             result.append([imdb_id, countries])
+            
         return result
 
 
-if __name__ == '__main__':
+@click.command()
+@click.option("-c", "--country", type=str, required=False, help='Filter results to only include the specified country')
+def go(country):
     mapper = CountryToIMDbMapper()
-    result = mapper.map_countries_to_imdb_ids()
+    result = mapper.map_countries_to_imdb_ids(country=country)
     mapper.write_results_to_file(result)
     print('Results written to file.')
+
+
+if __name__ == '__main__':
+    go()
