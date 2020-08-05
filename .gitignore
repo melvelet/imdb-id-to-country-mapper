@@ -2,3 +2,4 @@
 *.iml
 .idea/
 omdb-api-key.txt
+venv/
