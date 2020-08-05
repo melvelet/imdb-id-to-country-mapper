@@ -1,4 +1,5 @@
 import csv
+
 import requests
 
 
@@ -27,7 +28,6 @@ class CountryToIMDbMapper:
     def __write_new_mapping_to_file(self, imdb_id, countries):
         self.writer.writerow([imdb_id, countries])
 
-
     def write_results_to_file(self, results):
         results_writer = csv.writer(open('results.csv', 'w+'), delimiter=';')
         for row in results:
@@ -45,7 +45,6 @@ class CountryToIMDbMapper:
     def get_country_from_omdb(self, imdb_id):
         req_url = f"http://www.omdbapi.com/?i={imdb_id}&apikey={self.omdb_api_key}"
         response = requests.post(req_url)
-        print(response.json())
         if 'Error' in response.json():
             print(response.json()['Error'])
             return None
@@ -56,12 +55,15 @@ class CountryToIMDbMapper:
     def map_countries_to_imdb_ids(self):
         result = list()
         api_limit_exceeded = False
+        api_calls = 0
         for imdb_id in self.__yield_input_imdb_ids():
             countries = ''
-            print(imdb_id, imdb_id in self.mappings)
             if imdb_id in self.mappings:
                 countries = self.mappings[imdb_id]
             elif not api_limit_exceeded:
+                if api_calls and api_calls % 10 == 0:
+                    print(api_calls, ' API calls executed.')
+                api_calls += 1
                 countries = self.get_country_from_omdb(imdb_id)
                 if countries is None:
                     api_limit_exceeded = True
@@ -75,5 +77,5 @@ class CountryToIMDbMapper:
 if __name__ == '__main__':
     mapper = CountryToIMDbMapper()
     result = mapper.map_countries_to_imdb_ids()
-    print(result)
     mapper.write_results_to_file(result)
+    print('Results written to file.')
