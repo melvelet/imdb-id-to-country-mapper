@@ -83,7 +83,7 @@ class CountryToIMDbMapper:
                 movie_info = self.get_attributes_from_omdb(imdb_id)
                 if type(movie_info) == str:
                     api_limit_exceeded = True
-            if movie_info:
+            if movie_info and type(movie_info) != str:
                 result[imdb_id] = movie_info
 
         return result
