@@ -57,7 +57,7 @@ class CountryToIMDbMapper:
             print(response.json()['Error'])
             return response.json()['Error']
         for attribute in self.attributes_to_use:
-            result[attribute] = response.json()[attribute]
+            result[attribute] = response.json().get(attribute, 'N/A')
         return result
 
     def all_necessary_attributes_in_movie_info(self, movie_info):
